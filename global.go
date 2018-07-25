@@ -191,8 +191,8 @@ func (runtime *_runtime) newError(name string, message Value, stackFramesToPop i
 	return self
 }
 
-func (runtime *_runtime) newNativeFunction(name, file string, line int, _nativeFunction _nativeFunction) *_object {
-	self := runtime.newNativeFunctionObject(name, file, line, _nativeFunction, 0)
+func (runtime *_runtime) newNativeFunction(name, inoutdesc, file string, line int, _nativeFunction _nativeFunction) *_object {
+	self := runtime.newNativeFunctionObject(name, inoutdesc, file, line, _nativeFunction, 0)
 	self.prototype = runtime.global.FunctionPrototype
 	prototype := runtime.newObject()
 	self.defineProperty("prototype", toValue_object(prototype), 0100, false)

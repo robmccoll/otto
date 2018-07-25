@@ -64,6 +64,9 @@ type Options struct {
 	// enabled. The way autocomplete is implemented can incur a performance
 	// penalty, so it's turned off by default.
 	Autocomplete bool
+
+	HistoryFile  string
+	HistoryLimit int
 }
 
 // RunWithOptions runs a REPL with the given options.
@@ -74,7 +77,9 @@ func RunWithOptions(vm *otto.Otto, options Options) error {
 	}
 
 	c := &readline.Config{
-		Prompt: prompt,
+		Prompt:       prompt,
+		HistoryFile:  options.HistoryFile,
+		HistoryLimit: options.HistoryLimit,
 	}
 
 	if options.Autocomplete {

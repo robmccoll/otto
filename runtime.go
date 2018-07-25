@@ -589,7 +589,7 @@ func (self *_runtime) toValue(value interface{}) Value {
 			file, line = fn.FileLine(pc)
 			file = path.Base(file)
 		}
-		return toValue_object(self.newNativeFunction(name, file, line, value))
+		return toValue_object(self.newNativeFunction(name, "", file, line, value))
 	case _nativeFunction:
 		var name, file string
 		var line int
@@ -600,7 +600,7 @@ func (self *_runtime) toValue(value interface{}) Value {
 			file, line = fn.FileLine(pc)
 			file = path.Base(file)
 		}
-		return toValue_object(self.newNativeFunction(name, file, line, value))
+		return toValue_object(self.newNativeFunction(name, "", file, line, value))
 	case Object, *Object, _object, *_object:
 		// Nothing happens.
 		// FIXME We should really figure out what can come here.
@@ -639,8 +639,23 @@ func (self *_runtime) toValue(value interface{}) Value {
 				}
 
 				typ := value.Type()
+				if name == "" {
+					name = typ.String()
+				}
 
-				return toValue_object(self.newNativeFunction(name, file, line, func(c FunctionCall) Value {
+				in := make([]string, typ.NumIn())
+				out := make([]string, typ.NumOut())
+				for i := range in {
+					ityp := typ.In(i)
+					in[i] = ityp.String()
+				}
+				for i := range out {
+					otyp := typ.Out(i)
+					out[i] = otyp.String()
+				}
+				inoutdesc := "(" + strings.Join(in, ", ") + ") => [" + strings.Join(out, ", ") + "]"
+
+				return toValue_object(self.newNativeFunction(name, inoutdesc, file, line, func(c FunctionCall) Value {
 					nargs := typ.NumIn()
 
 					if len(c.ArgumentList) != nargs {

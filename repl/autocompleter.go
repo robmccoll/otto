@@ -11,7 +11,7 @@ type autoCompleter struct {
 	vm *otto.Otto
 }
 
-var lastExpressionRegex = regexp.MustCompile(`[a-zA-Z0-9]([a-zA-Z0-9\.]*[a-zA-Z0-9])?\.?$`)
+var lastExpressionRegex = regexp.MustCompile(`[a-zA-Z0-9_]([a-zA-Z0-9_\.]*[a-zA-Z0-9_])?\.?$`)
 
 func (a *autoCompleter) Do(line []rune, pos int) ([][]rune, int) {
 	lastExpression := lastExpressionRegex.FindString(string(line))

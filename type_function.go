@@ -31,16 +31,18 @@ type _nativeFunction func(FunctionCall) Value
 
 type _nativeFunctionObject struct {
 	name      string
+	inoutdesc string
 	file      string
 	line      int
 	call      _nativeFunction    // [[Call]]
 	construct _constructFunction // [[Construct]]
 }
 
-func (runtime *_runtime) _newNativeFunctionObject(name, file string, line int, native _nativeFunction, length int) *_object {
+func (runtime *_runtime) _newNativeFunctionObject(name, inoutdesc, file string, line int, native _nativeFunction, length int) *_object {
 	self := runtime.newClassObject("Function")
 	self.value = _nativeFunctionObject{
 		name:      name,
+		inoutdesc: inoutdesc,
 		file:      file,
 		line:      line,
 		call:      native,
@@ -51,11 +53,11 @@ func (runtime *_runtime) _newNativeFunctionObject(name, file string, line int, n
 	return self
 }
 
-func (runtime *_runtime) newNativeFunctionObject(name, file string, line int, native _nativeFunction, length int) *_object {
-	self := runtime._newNativeFunctionObject(name, file, line, native, length)
+func (runtime *_runtime) newNativeFunctionObject(name, inoutdesc, file string, line int, native _nativeFunction, length int) *_object {
+	self := runtime._newNativeFunctionObject(name, inoutdesc, file, line, native, length)
 	self.defineOwnProperty("caller", _property{
 		value: _propertyGetSet{
-			runtime._newNativeFunctionObject("get", "internal", 0, func(fc FunctionCall) Value {
+			runtime._newNativeFunctionObject("get", "(string) => [Value]", "internal", 0, func(fc FunctionCall) Value {
 				for sc := runtime.scope; sc != nil; sc = sc.outer {
 					if sc.frame.fn == self {
 						if sc.outer == nil || sc.outer.frame.fn == nil {
@@ -136,7 +138,7 @@ func (runtime *_runtime) newNodeFunctionObject(node *_nodeFunctionLiteral, stash
 	self.defineProperty("length", toValue_int(len(node.parameterList)), 0000, false)
 	self.defineOwnProperty("caller", _property{
 		value: _propertyGetSet{
-			runtime.newNativeFunction("get", "internal", 0, func(fc FunctionCall) Value {
+			runtime.newNativeFunction("get", "(string) => [Value]", "internal", 0, func(fc FunctionCall) Value {
 				for sc := runtime.scope; sc != nil; sc = sc.outer {
 					if sc.frame.fn == self {
 						if sc.outer == nil || sc.outer.frame.fn == nil {

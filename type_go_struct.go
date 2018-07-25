@@ -68,8 +68,14 @@ func (self _goStructObject) setValue(name string, value Value) bool {
 	if err != nil {
 		panic(err)
 	}
-	fieldValue.Set(reflectValue)
-
+	if reflectValue.Type().AssignableTo(field.Type) {
+		fieldValue.Set(reflectValue)
+	} else {
+		obj := value._object()
+		if obj != nil {
+			fieldValue.Set(obj.runtime.convertCallParameter(value, field.Type))
+		}
+	}
 	return true
 }
 

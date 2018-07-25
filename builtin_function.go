@@ -57,7 +57,11 @@ func builtinFunction_toString(call FunctionCall) Value {
 	object := call.thisClassObject("Function") // Should throw a TypeError unless Function
 	switch fn := object.value.(type) {
 	case _nativeFunctionObject:
-		return toValue_string(fmt.Sprintf("function %s() { [native code] }", fn.name))
+		desc := "()"
+		if fn.inoutdesc != "" {
+			desc = fn.inoutdesc
+		}
+		return toValue_string(fmt.Sprintf("function %s {[native code]}", desc))
 	case _nodeFunctionObject:
 		return toValue_string(fn.node.source)
 	case _bindFunctionObject:

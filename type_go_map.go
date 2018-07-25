@@ -83,7 +83,18 @@ func goMapDefineOwnProperty(self *_object, name string, descriptor _property, th
 	if !descriptor.isDataDescriptor() {
 		return self.runtime.typeErrorResult(throw)
 	}
-	object.value.SetMapIndex(object.toKey(name), object.toValue(descriptor.value.(Value)))
+
+	key := object.toKey(name)
+	ottoValue := descriptor.value.(Value)
+	reflectValue := object.toValue(ottoValue)
+	valueType := reflect.TypeOf(reflectValue)
+	targetType := object.value.Type().Elem()
+
+	if valueType.AssignableTo(targetType) {
+		object.value.SetMapIndex(key, reflectValue)
+	} else {
+		object.value.SetMapIndex(key, self.runtime.convertCallParameter(ottoValue, targetType))
+	}
 	return true
 }
 
